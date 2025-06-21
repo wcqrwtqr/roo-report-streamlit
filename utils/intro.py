@@ -10,7 +10,7 @@ def intro():
     st.subheader("About the web site:")
     st.markdown(
         """
-                    Upload row data from the MPFM ROXAR unit or from the Down hole memory gauges or csv files from the DAQ system and get
+                    xxxxx Upload row data from the MPFM ROXAR unit or from the Down hole memory gauges or csv files from the DAQ system and get
                     an instant graph and data set based on your requirements.\n
                     You can generate graphs and adjust it to the duration you desire and calculate the average values of the selected fields
                     then download it to csv.\n

@@ -1,9 +1,7 @@
 streamlit
-scipy
-simpy
 matplotlib
 seaborn
-scipy
 plotly
 altair
 lasio
+python-docx
