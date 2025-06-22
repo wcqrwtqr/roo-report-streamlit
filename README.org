@@ -2,7 +2,8 @@
 
 
 * streamline-app
-A python and streamlit app for my oilfield operation support
+A python and streamlit app for generating a final report for the SGS gauges used in ROO operation, the app uses a docx word file with a placeholders {{tag}} and replaces the tags with the details requried.
+This app cut the time spent for generating the daily report that we do it for our client on a daily basis.
 
 Note:
 - python version is 3.12.1
@@ -18,7 +19,7 @@ source .venv/bin/activate
 streamlit run app.py
 #+end_src
 
-** How to run the application (Docker)
+** How to run the application (Docker prefered option)
 
 #+begin_src bash
 # The first time use the following command
