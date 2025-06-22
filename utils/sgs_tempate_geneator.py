@@ -55,6 +55,11 @@ def generate_sgs_page():
         "field": {"label": "Field", "default": "South Rumaila", "key": "field_input"},
         "sor": {"label": "SOR", "default": "34873", "key": "sor_input"},
         "day": {"label": "Day", "default": "06", "key": "day_input"},
+        "casingsize": {
+            "label": "Casing Size",
+            "default": "7in 29# L-80",
+            "key": "casingsize_input",
+        },
         "month": {"label": "Month", "default": "04", "key": "month_input"},
         "monthfull": {
             "label": "Month (Full)",
@@ -70,7 +75,7 @@ def generate_sgs_page():
         },
         "interval": {
             "label": "Interval",
-            "default": "3388, 3370, 3364, 3350, 3342, 3332, 3264, 2989, 1989, 989, 489, 0mGL",
+            "default": "3388, 3342, 3332, 3264, 2989, 1989, 989, 489, 0mGL",
             "key": "interval_input",
         },
         "unit_no": {
@@ -90,6 +95,7 @@ def generate_sgs_page():
         if st.session_state["unit_no"] in params["options"]
         else 0
     )
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.session_state["unit_no"] = st.selectbox(
@@ -107,10 +113,11 @@ def generate_sgs_page():
             if field in [
                 "activity",
                 "activity_sgs",
-                "activity_dr",
+                # "activity_dr",
                 "field",
                 "packer",
                 "sor",
+                "casingsize",
             ]:
                 if field not in st.session_state:
                     st.session_state[field] = params["default"]
@@ -119,7 +126,7 @@ def generate_sgs_page():
                 )
     with col3:
         for field, params in input_fields.items():
-            if field in ["day", "month", "monthfull", "year", "dgs", "tubing"]:
+            if field in ["day", "month", "year", "dgs", "tubing"]:
                 if field not in st.session_state:
                     st.session_state[field] = params["default"]
                 st.session_state[field] = st.text_input(
@@ -144,18 +151,17 @@ def generate_sgs_page():
         spv = st.session_state["spv"]
         activity = st.session_state["activity"]
         activity_sgs = st.session_state["activity_sgs"]
-        activity_dr = st.session_state["activity_dr"]
         packer = st.session_state["packer"]
         field = st.session_state["field"]
         sor = st.session_state["sor"]
         day = st.session_state["day"]
         month = st.session_state["month"]
-        monthfull = st.session_state["monthfull"]
         year = st.session_state["year"]
         dgs = st.session_state["dgs"]
         tubing = st.session_state["tubing"]
         interval = st.session_state["interval"]
         unit_no = st.session_state["unit_no"]
+        casingsize = st.session_state["casingsize"]
 
         # Define input and output paths
         template_file = os.path.join("utils", f"template{unit_no}.docx")
@@ -181,10 +187,12 @@ def generate_sgs_page():
                 "{{interval}}": interval,
                 "{{min-res}}": min_res,
                 "{{spv}}": spv,
+                "{{casingsize}}": casingsize,
             }
 
             try:
-                replace_docx_variables(template_file, output_file, replacements)
+                replace_docx_variables(
+                    template_file, output_file, replacements)
                 st.success(f"Report generated successfully: {output_file}")
 
                 # Offer download
