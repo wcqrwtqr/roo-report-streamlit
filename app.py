@@ -1,5 +1,6 @@
 import streamlit as st
 from utils.intro import intro
+from utils.sgs_tempate_geneator import generate_sgs_page
 from utils.gauges_page import (
     gauges_metrolog_page,
     gauges_spartek_page,
@@ -17,6 +18,7 @@ if __name__ == "__main__":
         "PLT las": plt_las_page,
         "Gauges Spartek": gauges_spartek_page,
         "Gauges Metrolog": gauges_metrolog_page,
+        "SGS Report": generate_sgs_page,
     }
     # Get the string of pages
     page_name = st.sidebar.selectbox("Choose page", page_name_to_func.keys())
