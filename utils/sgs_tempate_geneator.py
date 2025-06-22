@@ -52,12 +52,6 @@ def generate_sgs_page():
             "key": "activity_dr_input",
         },
         "packer": {"label": "Packer", "default": "Packer", "key": "packer_input"},
-        # "packer": {
-        #     "label": "Packer",
-        #     "options": ["Packer", "Packerless"],
-        #     "default": "Packerless",
-        #     "key": "packer_input",
-        # },
         "field": {"label": "Field", "default": "South Rumaila", "key": "field_input"},
         "sor": {"label": "SOR", "default": "34873", "key": "sor_input"},
         "day": {"label": "Day", "default": "06", "key": "day_input"},
@@ -123,7 +117,6 @@ def generate_sgs_page():
                 st.session_state[field] = st.text_input(
                     params["label"], st.session_state[field], key=params["key"]
                 )
-
     with col3:
         for field, params in input_fields.items():
             if field in ["day", "month", "monthfull", "year", "dgs", "tubing"]:
@@ -191,8 +184,7 @@ def generate_sgs_page():
             }
 
             try:
-                replace_docx_variables(
-                    template_file, output_file, replacements)
+                replace_docx_variables(template_file, output_file, replacements)
                 st.success(f"Report generated successfully: {output_file}")
 
                 # Offer download

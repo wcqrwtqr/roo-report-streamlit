@@ -1,6 +1,6 @@
 import streamlit as st
-from helpers.spartek_gauges_helper import Gauges_data_Spartek
-from helpers.metrolog_gauges_helper import Gauges_data_Metrolog
+# from helpers.spartek_gauges_helper import Gauges_data_Spartek
+# from helpers.metrolog_gauges_helper import Gauges_data_Metrolog
 from helpers.kuster_gauges_helper import Gauges_data_kuster
 from PIL import Image
 import os
