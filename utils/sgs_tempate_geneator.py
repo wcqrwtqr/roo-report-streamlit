@@ -7,6 +7,16 @@ package_dir = os.path.dirname(os.path.abspath(__file__))
 st.set_page_config(layout="wide")
 
 
+def delete_file(filepath):
+    """Deletes the file at the given filepath."""
+    try:
+        os.remove(filepath)
+        print(f"File {filepath} deleted successfully.")  # Optional logging
+    except Exception as e:
+        print(f"Error deleting file {filepath}: {e}")  # Optional error logging
+        st.error(f"Error deleting file {filepath}: {e}")
+
+
 def generate_sgs_page():
     """Take the input data and generate a final report.  This is not final."""
     st.title("ROO SGS Report Generator")
@@ -46,10 +56,10 @@ def generate_sgs_page():
             "default": "SGS",
             "key": "activity_sgs_input",
         },
-        "activity_dr": {
-            "label": "Activity DR",
-            "default": "DR",
-            "key": "activity_dr_input",
+        "sgs-fgs": {
+            "label": "SGS-FGS",
+            "default": "Static Gradient Survey",
+            "key": "sgs-fgs_input",
         },
         "packer": {"label": "Packer", "default": "Packer", "key": "packer_input"},
         "field": {"label": "Field", "default": "South Rumaila", "key": "field_input"},
@@ -112,12 +122,11 @@ def generate_sgs_page():
         for field, params in input_fields.items():
             if field in [
                 "activity",
-                "activity_sgs",
-                # "activity_dr",
                 "field",
                 "packer",
                 "sor",
                 "casingsize",
+                "activity_sgs",
             ]:
                 if field not in st.session_state:
                     st.session_state[field] = params["default"]
@@ -126,7 +135,7 @@ def generate_sgs_page():
                 )
     with col3:
         for field, params in input_fields.items():
-            if field in ["day", "month", "year", "dgs", "tubing"]:
+            if field in ["day", "month", "year", "dgs", "tubing", "sgs-fgs"]:
                 if field not in st.session_state:
                     st.session_state[field] = params["default"]
                 st.session_state[field] = st.text_input(
@@ -145,6 +154,7 @@ def generate_sgs_page():
     if st.button("Generate Report"):
         # Get values from session state
         wellname = st.session_state["wellname"]
+        sgs_fgs = st.session_state["sgs-fgs"]
         welltype = st.session_state["welltype"]
         fluid = st.session_state["fluid"]
         min_res = st.session_state["min_res"]
@@ -177,10 +187,12 @@ def generate_sgs_page():
                 "{{well_name}}": wellname,
                 "{{sor}}": sor,
                 "{{date}}": f"{day}-{month}-{year}",
-                "{{type}}": "Static Gradient Survey",
+                # "{{type}}": "Static Gradient Survey",
+                "{{type}}": sgs_fgs,
                 "{{field}}": field,
                 "{{dgs}}": dgs,
                 "{{fluid}}": fluid,
+                "{{sgs-fgs}}": sgs_fgs,
                 "{{packer}}": packer,
                 "{{tubing}}": tubing,
                 "{{welltype}}": welltype,
@@ -202,6 +214,9 @@ def generate_sgs_page():
                         data=file,
                         file_name=output_file,
                         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        # Delete the file after download
+                        on_click=delete_file,
+                        kwargs={'filepath':output_file}
                     )
 
             except Exception as e:
