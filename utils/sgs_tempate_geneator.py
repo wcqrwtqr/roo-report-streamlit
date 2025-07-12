@@ -203,8 +203,7 @@ def generate_sgs_page():
             }
 
             try:
-                replace_docx_variables(
-                    template_file, output_file, replacements)
+                replace_docx_variables(template_file, output_file, replacements)
                 st.success(f"Report generated successfully: {output_file}")
 
                 # Offer download
@@ -216,7 +215,7 @@ def generate_sgs_page():
                         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                         # Delete the file after download
                         on_click=delete_file,
-                        kwargs={'filepath':output_file}
+                        kwargs={"filepath": output_file},
                     )
 
             except Exception as e:
