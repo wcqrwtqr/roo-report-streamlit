@@ -11,10 +11,10 @@ if __name__ == "__main__":
     # Make the pages here in a Dict
     page_name_to_func = {
         "Intro Page": intro,
-        "Gauges Kuster": gauges_kuster_page,
-        "MD -> TVD": md_tvd_page,
-        "PLT las": plt_las_page,
         "SGS Report": generate_sgs_page,
+        "Gauges Kuster": gauges_kuster_page,
+        "PLT las": plt_las_page,
+        "MD -> TVD": md_tvd_page,
     }
     # Get the string of pages
     page_name = st.sidebar.selectbox("Choose page", page_name_to_func.keys())

@@ -37,14 +37,6 @@ date_formats_all_options = [
 ]
 
 
-# def row_counting(source_file: str) -> int:
-#     row_count: int = 0
-#     with open(source_file, "r") as f:
-#         for line in f:
-#             row_count += 1
-#     return row_count
-
-
 @st.cache_data
 def load_df_kuster(source_file: str, row: int) -> Tuple[pd.DataFrame, List[int]]:
     # Reading the source file of the kuster txt file and load it to the pdf
