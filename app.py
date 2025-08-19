@@ -1,9 +1,8 @@
 import streamlit as st
 from utils.intro import intro
 from utils.sgs_tempate_geneator import generate_sgs_page
-from utils.gauges_page import (
-    gauges_kuster_page,
-)
+from utils.depth_page import depth_goes_page
+from utils.gauges_page import gauges_kuster_page
 from utils.plt_las import plt_las_page
 from utils.md_tvd import md_tvd_page
 
@@ -14,6 +13,7 @@ if __name__ == "__main__":
         "SGS Report": generate_sgs_page,
         "Gauges Kuster": gauges_kuster_page,
         "PLT las": plt_las_page,
+        "Depth Meter": depth_goes_page,
         "MD -> TVD": md_tvd_page,
     }
     # Get the string of pages

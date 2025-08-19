@@ -7,8 +7,12 @@ import streamlit as st
 
 
 def graph_template(df: pd.DataFrame, st: st, label: str, y1: str, y2: str):
-    """Template for the arg function which accept any number of arguments
-    It might have some performance issues when dealing with big data
+    """Template for the arg function which accept any number of arguments.
+
+    It might have some performance issues when dealing with big data.
+
+    The output of this fuction is a fully rendered ST collapsable with the \
+    graph.
     """
     with st.expander(label=label):
         graphing_line_arg(df, "date_time_corrected", st, [y1, y2])
