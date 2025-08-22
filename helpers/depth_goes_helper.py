@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from typing import List, Tuple
-from handlers.make_graphs import graph_template
+from handlers.make_graphs import graph_template,graphing_line_arg
 
 
 @st.cache_data
@@ -70,3 +70,7 @@ def depth_data_goes(source_file, row=5):
                    "LineTesion[Lbs]")
     graph_template(df_lst, st, "Depth vs speed", "LineDepth[m]",
                    "LineSpeed[m/min]")
+    with st.expander(label="Time vs depth, tesnsion an speed"):
+        graphing_line_arg(df, "date_time_corrected", st, ["LineTesion[Lbs]",
+                                                          "LineDepth[m]",
+                                                          "LineSpeed[m/min]"])
