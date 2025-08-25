@@ -36,6 +36,11 @@ def load_df_depth(source_file: str, row: int) -> Tuple[pd.DataFrame, List[int]]:
         date_parser=lambda x: pd.to_datetime(x, format="%Y-%m-%d %H:%M:%S"),
     )
     df = df.drop(columns=["ind"])
+    # Conversion factor from kPa to psi
+    kPa_to_psi_factor = 0.14503773773
+    # Create new columns for pressure in psi
+    df["Pressure_1[psi]"] = df["Pressure_1[kpa]"] * kPa_to_psi_factor
+    df["Pressure_2[psi]"] = df["Pressure_2[kpa]"] * kPa_to_psi_factor
     range_data = df.index.tolist()
     return df, range_data
 
@@ -74,3 +79,7 @@ def depth_data_goes(source_file, row=5):
         graphing_line_arg(df, "date_time_corrected", st, ["LineTesion[Lbs]",
                                                           "LineDepth[m]",
                                                           "LineSpeed[m/min]"])
+
+    with st.expander(label="Time vs pressure1, pressure2"):
+        graphing_line_arg(df, "date_time_corrected", st, ["Pressure_1[psi]",
+                                                          "Pressure_2[psi]"])
