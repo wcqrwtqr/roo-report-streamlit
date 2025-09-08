@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from typing import List, Tuple
-from handlers.make_graphs import graph_template,graphing_line_arg
+from handlers.make_graphs import graph_template, graphing_line_arg
 
 
 @st.cache_data
@@ -41,6 +41,19 @@ def load_df_depth(source_file: str, row: int) -> Tuple[pd.DataFrame, List[int]]:
     # Create new columns for pressure in psi
     df["Pressure_1[psi]"] = df["Pressure_1[kpa]"] * kPa_to_psi_factor
     df["Pressure_2[psi]"] = df["Pressure_2[kpa]"] * kPa_to_psi_factor
+    # Calculate the difference over 60 secs
+    # This code is used to comupte the step change over 60 sec
+    df["P1_acceptance_criteria"] = (
+        df["Pressure_1[psi]"]
+        .rolling(window=60, min_periods=1)
+        .apply(lambda x: x.iloc[-1] - x.iloc[0])
+    )
+    df["P2_acceptance_criteria"] = (
+        df["Pressure_2[psi]"]
+        .rolling(window=60, min_periods=1)
+        .apply(lambda x: x.iloc[-1] - x.iloc[0])
+    )
+    df = df.drop(columns=["Pressure_2[kpa]", "Pressure_1[kpa]"])
     range_data = df.index.tolist()
     return df, range_data
 
@@ -58,9 +71,10 @@ def depth_data_goes(source_file, row=5):
         "Range:",
         min_value=min(range_data),
         max_value=max(range_data),
-        value=(min(range_data), max(range_data)))
+        value=(min(range_data), max(range_data)),
+    )
     # Creating the masked df from the index
-    df_lst = df[range_data_selection[0]: range_data_selection[1]]
+    df_lst = df[range_data_selection[0] : range_data_selection[1]]
     with st.expander(label="Table of Data"):
         NN = st.selectbox("Interval", [1, 2, 5, 10, 25, 50, 100])
         if NN is None:  # This code is to address int|None condition
@@ -68,18 +82,28 @@ def depth_data_goes(source_file, row=5):
         st.dataframe(df_lst.loc[:: int(NN)])
         st.markdown(f"*Available Data: {df_lst.loc[::int(NN)].shape[0]}")
         st.download_button(
-            label="Download data", data=df_lst.loc[:: int(NN)].to_csv(),
-            mime="text/csv")
+            label="Download data", data=df_lst.loc[:: int(NN)].to_csv(), mime="text/csv"
+        )
     # Graph the data detph vs tension vs time
-    graph_template(df_lst, st, "Depth vs Tension", "LineDepth[m]",
-                   "LineTesion[Lbs]")
-    graph_template(df_lst, st, "Depth vs speed", "LineDepth[m]",
-                   "LineSpeed[m/min]")
+    graph_template(df_lst, st, "Depth vs Tension", "LineDepth[m]", "LineTesion[Lbs]")
+    graph_template(df_lst, st, "Depth vs speed", "LineDepth[m]", "LineSpeed[m/min]")
     with st.expander(label="Time vs depth, tesnsion an speed"):
-        graphing_line_arg(df, "date_time_corrected", st, ["LineTesion[Lbs]",
-                                                          "LineDepth[m]",
-                                                          "LineSpeed[m/min]"])
+        graphing_line_arg(
+            df,
+            "date_time_corrected",
+            st,
+            ["LineTesion[Lbs]", "LineDepth[m]", "LineSpeed[m/min]"],
+        )
 
-    with st.expander(label="Time vs pressure1, pressure2"):
-        graphing_line_arg(df, "date_time_corrected", st, ["Pressure_1[psi]",
-                                                          "Pressure_2[psi]"])
+    with st.expander(label="Time vs pressure1, pressure2, drop rate"):
+        graphing_line_arg(
+            df,
+            "date_time_corrected",
+            st,
+            [
+                "Pressure_1[psi]",
+                "P1_acceptance_criteria",
+                "Pressure_2[psi]",
+                "P2_acceptance_criteria",
+            ],
+        )
