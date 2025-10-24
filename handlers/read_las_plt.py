@@ -3,6 +3,11 @@ from typing import Tuple, List
 
 
 def sep_and_names(is_spartek: bool) -> Tuple[str, List[str]]:
+    """Define what kind of gauges and will select the correct type.
+
+    Retruns:
+    the sep and the names of the columns
+    """
     # choose the names of the header in case of metrolog or spartek
     if not is_spartek:
         sep = "[,\t]"
@@ -14,6 +19,17 @@ def sep_and_names(is_spartek: bool) -> Tuple[str, List[str]]:
 
 
 def drop_and_make_datetime(df: pd.DataFrame, is_spartek: bool) -> pd.DataFrame:
+    """Combine date and time columns into a single datetime column.
+
+    Args:
+        df: The input DataFrame.
+        is_spartek: A boolean indicating if the DataFrame is from Spartek,
+            which determines the date/time format.
+
+    Returns:
+        A DataFrame with a 'date_time_corrected' column containing datetime objects,
+        and the original 'date', 'time', and 'AMPM' (if is_spartek) columns dropped.
+    """
     if is_spartek:
         df["date_time"] = df["date"] + " " + df["time"] + " " + df["AMPM"]
         date_formats = [
@@ -67,6 +83,11 @@ def drop_and_make_datetime(df: pd.DataFrame, is_spartek: bool) -> pd.DataFrame:
 
 
 def read_csv_standard(source_file: str, row: int, is_spartek=False) -> pd.DataFrame:
+    """Load the csv file in a standard way for spartek data or metrolog.
+
+    Reutrs:
+    Datframe after loading
+    """
     sep, names = sep_and_names(is_spartek)
     df = pd.read_csv(
         source_file,

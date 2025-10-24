@@ -64,12 +64,10 @@ def graph_las_data(source_file):
         max_value=max(range_data),
         value=(min(range_data), max(range_data)),
     )
-    st.write("debug")
     # Creating the masked df from the index
-    df_lst = df[range_data_selection[0]: range_data_selection[1]]
+    df_lst = df[range_data_selection[0] : range_data_selection[1]]
     with st.expander(label="Averages"):
         st.table(df_lst.mean().sort_values(ascending=False))
-
     with st.expander(label="Graph las file"):
         col1, col2, col3, col4 = st.columns(4)
         with col1:
