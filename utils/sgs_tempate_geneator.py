@@ -49,7 +49,7 @@ def generate_sgs_page():
         "spv": {"label": "SPV", "default": "Haider Jawad", "key": "spv_input"},
         "activity": {
             "label": "Activity",
-            "default": "Daily, Pre and Post job WSD",
+            "default": "DR, TEL",
             "key": "activity_input",
         },
         "activity_sgs": {
@@ -161,32 +161,24 @@ def generate_sgs_page():
         wellname = st.session_state["wellname"]
         unit_no = st.session_state["unit_no"]
 
-        daily_report_name = f"Daily Report Name: {wellname}_NEOS_{
-            activity
-        }_Daily Report_{year}{month}{day}"
-        pre_wsd_name = f"Pre Report Name: {wellname}_NEOS_{activity}_Pre Job WSD_{year}{
-            month
-        }{day}"
-        post_wsd_name = f"Post Report Name: {wellname}_NEOS_{activity}_Post Job WSD_{
-            year
-        }{month}{day}"
-        sgs_results_name = (
-            f"SGS Report Name: {wellname}_NEOS_SGS Results_{year}{month}{day}"
+        daily_report_name = (
+            f"{wellname}_NEOS_{activity}_Daily Report_{year}{month}{day}"
         )
+        pre_wsd_name = f"{wellname}_NEOS_{
+            activity}_Pre Job WSD_{year}{month}{day}"
+        post_wsd_name = f"{wellname}_NEOS_{
+            activity}_Post Job WSD_{year}{month}{day}"
+        sgs_results_name = f"{wellname}_NEOS_SGS Results_{year}{month}{day}"
         if unit_no == "1":
-            sgs_data_top_name = f"SGS Top Gauge data Name: {
-                wellname
-            }_NEOS_SGS Data_8701_top_{year}{month}{day}"
-            sgs_data_bot_name = f"SGS Top Gauge data Name: {
-                wellname
-            }_NEOS_SGS Data_8700_bot_{year}{month}{day}"
+            sgs_data_top_name = f"{
+                wellname}_NEOS_SGS Data_8701_top_{year}{month}{day}"
+            sgs_data_bot_name = f"{
+                wellname}_NEOS_SGS Data_8700_bot_{year}{month}{day}"
         elif unit_no == "2":
-            sgs_data_top_name = f"SGS Top Gauge data Name: {
-                wellname
-            }_NEOS_SGS Data_8698_top_{year}{month}{day}"
-            sgs_data_bot_name = f"SGS Top Gauge data Name: {
-                wellname
-            }_NEOS_SGS Data_8699_bot_{year}{month}{day}"
+            sgs_data_top_name = f"{
+                wellname}_NEOS_SGS Data_8698_top_{year}{month}{day}"
+            sgs_data_bot_name = f"{
+                wellname}_NEOS_SGS Data_8699_bot_{year}{month}{day}"
         else:
             sgs_data_top_name = "Wrong input"
             sgs_data_bot_name = "Wrong input"
