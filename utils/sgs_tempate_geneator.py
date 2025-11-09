@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 from docx import Document
+import pandas as pd
 
 package_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -151,6 +152,67 @@ def generate_sgs_page():
         key=input_fields["interval"]["key"],
     )
 
+    if st.button("File Naming"):
+        # This button will take the input and create the file names
+        day = st.session_state["day"]
+        activity = st.session_state["activity"]
+        month = st.session_state["month"]
+        year = st.session_state["year"]
+        wellname = st.session_state["wellname"]
+        unit_no = st.session_state["unit_no"]
+
+        daily_report_name = f"Daily Report Name: {wellname}_NEOS_{
+            activity
+        }_Daily Report_{year}{month}{day}"
+        pre_wsd_name = f"Pre Report Name: {wellname}_NEOS_{activity}_Pre Job WSD_{year}{
+            month
+        }{day}"
+        post_wsd_name = f"Post Report Name: {wellname}_NEOS_{activity}_Post Job WSD_{
+            year
+        }{month}{day}"
+        sgs_results_name = (
+            f"SGS Report Name: {wellname}_NEOS_SGS Results_{year}{month}{day}"
+        )
+        if unit_no == "1":
+            sgs_data_top_name = f"SGS Top Gauge data Name: {
+                wellname
+            }_NEOS_SGS Data_8701_top_{year}{month}{day}"
+            sgs_data_bot_name = f"SGS Top Gauge data Name: {
+                wellname
+            }_NEOS_SGS Data_8700_bot_{year}{month}{day}"
+        elif unit_no == "2":
+            sgs_data_top_name = f"SGS Top Gauge data Name: {
+                wellname
+            }_NEOS_SGS Data_8698_top_{year}{month}{day}"
+            sgs_data_bot_name = f"SGS Top Gauge data Name: {
+                wellname
+            }_NEOS_SGS Data_8699_bot_{year}{month}{day}"
+        else:
+            sgs_data_top_name = "Wrong input"
+            sgs_data_bot_name = "Wrong input"
+
+            # Create a list of dictionaries with two columns: Report Type and Report Name
+        report_data = [
+            {"Report Type": "Daily Report Name", "Report Name": daily_report_name},
+            {"Report Type": "Pre Report Name", "Report Name": pre_wsd_name},
+            {"Report Type": "Post Report Name", "Report Name": post_wsd_name},
+            {"Report Type": "SGS Report Name", "Report Name": sgs_results_name},
+            {
+                "Report Type": "SGS Top Gauge Data Name",
+                "Report Name": sgs_data_top_name,
+            },
+            {
+                "Report Type": "SGS Bottom Gauge Data Name",
+                "Report Name": sgs_data_bot_name,
+            },
+        ]
+
+        # Convert to DataFrame
+        df = pd.DataFrame(report_data)
+
+        # Display as table
+        st.table(df)
+
     if st.button("Generate Report"):
         # Get values from session state
         wellname = st.session_state["wellname"]
@@ -160,7 +222,7 @@ def generate_sgs_page():
         min_res = st.session_state["min_res"]
         spv = st.session_state["spv"]
         activity = st.session_state["activity"]
-        activity_sgs = st.session_state["activity_sgs"]
+        # activity_sgs = st.session_state["activity_sgs"]
         packer = st.session_state["packer"]
         field = st.session_state["field"]
         sor = st.session_state["sor"]
@@ -203,7 +265,8 @@ def generate_sgs_page():
             }
 
             try:
-                replace_docx_variables(template_file, output_file, replacements)
+                replace_docx_variables(
+                    template_file, output_file, replacements)
                 st.success(f"Report generated successfully: {output_file}")
 
                 # Offer download
