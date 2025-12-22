@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 
 
 def horner_page():
-    """Read the elapse time and pressure of a shut-in period and generate
+    """Read the elapse time and pressure of a shut-in period and generate \
     Horner plot for calculating the skin factor and other parameters.
 
     This function does not accept any parameters and excute
@@ -21,11 +21,13 @@ def horner_page():
         """
         Data generated from down hole memory gauges used to generate\
         Horner plot that is used in PTA analysis
+
+        Ensure the csv file has two columns only elapse time called 'Hours'\
+        and the second column is pressure called 'Pressure'
                 """
     )
     source_data_bottom = st.file_uploader(
-        label="Uplaod gauge data to web page", type=["csv"],
-        key="file_bottom_unique"
+        label="Uplaod gauge data to web page", type=["csv"], key="file_bottom_unique"
     )
     st.write("---")
     try:

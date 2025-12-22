@@ -2,37 +2,24 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from typing import List, Tuple
-import time
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-# Variabels
-# known
-# poro = 0.28
-# rw = 0.4  # in ft
-# h = 86  # in ft
-# ct = 9e-06  # in psi^-1
-# pi = 3700  # initial pressure in psia
-# mu_oil = 1  # in cP
-# Bo = 1.121  # in RB/STB
-# re = np.inf  # reservoir is infinity in size
-# q = 3000  # RB/D
-# pwf = 3462.4  # in psia, flowing pressure
-# # the well is flowed for 24 hours, then shut-in for another 24 hours (24-hour buildup)
-# tp = 12
 
+def regression(x: int, y: int) -> Tuple[int, int]:
+    """
+    Calculate the straing line regression so \
+    we can use it as an input for the horner plot.
 
-def regression(x, y):
-    # number of observations/points
+    Retrun the two values of the slope and the intercept \
+    the intercept is the pi* inial pressure
+    """
     n = np.size(x)
-
     # mean of x and y vector
     m_x, m_y = np.mean(x), np.mean(y)
-
     # calculating cross-deviation and deviation about x
     SS_xy = np.sum(y * x) - n * m_y * m_x
     SS_xx = np.sum(x * x) - n * m_x * m_x
-
     # calculating regression coefficients
     b_1 = SS_xy / SS_xx
     b_0 = m_y - b_1 * m_x
@@ -88,14 +75,12 @@ def Horner_plot_data(source_file):
             "Hours",
             "Pressure",
             title="Pressure Buildup Profile Over Time",
-            x_lable="Time(Hourse)",
+            x_label="Time(Hourse)",
             y_label="Pressure(psi)",
         )
         st.plotly_chart(graph)
 
     with st.expander(label="Horner Plot"):
-        # graph = graphing_horner_1v(df_lst, "Hours", "Pressure")
-        # st.plotly_chart(graph)
         delta_t = df_lst.Hours - df_lst.Hours[0]
         x_horner = np.log10((24 + delta_t) / delta_t)
         horner = pd.DataFrame(
@@ -136,15 +121,6 @@ def Horner_plot_data(source_file):
             y5 = dfhorner.iloc[:, 2]
             c5, m5 = regression(x5, y5)
             pi = c5  # initial pressure equals to intercept c5
-            graph = graphing_horner_1v(
-                horner,
-                "logtime",
-                "Shut-in pressure(psia)",
-                title="Complete Horner Build Plot",
-                x_lable="Log((tp+delta_t)/delte_t)",
-                y_label="Shut-in pressure, pws (psi)",
-            )
-            # Calculate the skin below
             # calculate permeability
             k = -(162.6 * q * Bo * mu_oil) / (m5 * h)
             # calculate skin factor
@@ -161,9 +137,22 @@ def Horner_plot_data(source_file):
             wellskin_contribution = (delta_ps / delta_p_shutin) * 100
             formation_drop = delta_p_shutin - delta_ps
             formation_contribution = 100 - wellskin_contribution
+            # Calcualte the straight line for the horner plot
+            graph = graphing_horner_1v(
+                horner,
+                "logtime",
+                "Shut-in pressure(psia)",
+                title="Complete Horner Build Plot",
+                x_label="Log((tp+delta_t)/delte_t)",
+                y_label="Shut-in pressure, pws (psi)",
+                index5=index5,
+                m5=m5,
+                c5=c5,
+            )
 
             submit = st.form_submit_button(label="Submit")
             if submit:
+                st.plotly_chart(graph)
                 st.write("Slope of linear-region Horner plot:", m5)
                 st.write("Intercept of linear-region Horner plot:", c5, "psia")
                 st.write(
@@ -180,36 +169,97 @@ def Horner_plot_data(source_file):
                     "% of total pressure drop",
                 )
                 st.write(
+                    "End of wellbore-storage period occurs approximately at:",
+                    df.Hours[index5],
+                    "hour",
+                )
+                st.write(
                     "Reservoir formation contribute to:",
                     formation_drop,
                     "psia of the total pressure drop,\nor in percent:",
                     formation_contribution,
                     "% of total pressure drop",
                 )
-                st.plotly_chart(graph)
 
 
 def graphing_horner_1v(
-    df: pd.DataFrame, x: str, ym: str, title: str, x_lable: str, y_label: str
+    df: pd.DataFrame,
+    x: str,
+    ym: str,
+    title: str,
+    x_label: str,
+    y_label: str,
+    index5: int | None = None,
+    m5: float | None = None,
+    c5: float | None = None,
 ):
-    """Graphing code that can graph the values from the DataFrame\
-    for two axes only and can by used and called serveral time as\
+    """
+    Graphing code that can graph the values from the DataFrame \
+    for two axes only and can by used and called several times as \
     much as you need.
+
+    This function was modifed to add the ability to make a star at \
+    a given point.
 
     This function is only for the Horner plot only.
     """
     xt = df[x]
     yp = df[ym]
-    # Making the graph for the values
+
     fig_n = make_subplots(specs=[[{"secondary_y": True}]])
-    # Added below update_layout to see if I can add the hover in the graph
-    # It worked nicely :)
+
     fig_n.update_layout(
-        title_text=f"{ym}",
-        hovermode="x unified",  # Enables crosshair line for hover
+        title_text=title,
+        hovermode="x unified",
+        height=600,
     )
-    fig_n.update_layout(title_text=title)
-    fig_n.update_xaxes(title_text=x_lable)
+    fig_n.update_xaxes(title_text=x_label)
     fig_n.update_yaxes(title_text=y_label)
-    fig_n.add_trace(go.Scatter(x=xt, y=yp, mode="lines", name=ym))
+
+    # Main line
+    fig_n.add_trace(
+        go.Scatter(
+            x=xt,
+            y=yp,
+            mode="lines",
+            name=ym,
+        )
+    )
+
+    # Optional red star marker at a specific point
+    if index5 is not None:
+        fig_n.add_trace(
+            go.Scatter(
+                x=[df[x].iloc[index5]],
+                y=[df[ym].iloc[index5]],
+                mode="markers",
+                name="end of linear region",
+                marker=dict(
+                    symbol="star",  # or "asterisk"
+                    color="red",
+                    size=12,
+                ),
+            )
+        )
+        # 2) Regression / straight line segment using m5 and c5
+        if m5 is not None and c5 is not None:
+            # Equivalent to:
+            # x_cut = horner.drop(horner.index[0])
+            # x_reg5 = x_cut.iloc[:, 1]
+            # y_reg5 = m5 * x_reg5 + c5
+            x_cut = df.drop(df.index[0])
+            x_reg5 = x_cut.iloc[:, 1]  # second column, like your code
+            y_reg5 = m5 * x_reg5 + c5
+
+            fig_n.add_trace(
+                go.Scatter(
+                    x=x_reg5,
+                    y=y_reg5,
+                    mode="lines",
+                    name="reg line",
+                    line=dict(color="orange", width=2),
+                    showlegend=True,
+                )
+            )
+
     return fig_n
