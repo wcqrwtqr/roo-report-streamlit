@@ -8,18 +8,18 @@ from plotly.subplots import make_subplots
 
 # Variabels
 # known
-poro = 0.28
-rw = 0.4  # in ft
-h = 86  # in ft
-ct = 9e-06  # in psi^-1
-pi = 3700  # initial pressure in psia
-mu_oil = 1  # in cP
-Bo = 1.121  # in RB/STB
-re = np.inf  # reservoir is infinity in size
-q = 3000  # RB/D
-pwf = 3462.4  # in psia, flowing pressure
-# the well is flowed for 24 hours, then shut-in for another 24 hours (24-hour buildup)
-tp = 12
+# poro = 0.28
+# rw = 0.4  # in ft
+# h = 86  # in ft
+# ct = 9e-06  # in psi^-1
+# pi = 3700  # initial pressure in psia
+# mu_oil = 1  # in cP
+# Bo = 1.121  # in RB/STB
+# re = np.inf  # reservoir is infinity in size
+# q = 3000  # RB/D
+# pwf = 3462.4  # in psia, flowing pressure
+# # the well is flowed for 24 hours, then shut-in for another 24 hours (24-hour buildup)
+# tp = 12
 
 
 def regression(x, y):
@@ -30,14 +30,14 @@ def regression(x, y):
     m_x, m_y = np.mean(x), np.mean(y)
 
     # calculating cross-deviation and deviation about x
-    SS_xy = np.sum(y*x) - n*m_y*m_x
-    SS_xx = np.sum(x*x) - n*m_x*m_x
+    SS_xy = np.sum(y * x) - n * m_y * m_x
+    SS_xx = np.sum(x * x) - n * m_x * m_x
 
     # calculating regression coefficients
     b_1 = SS_xy / SS_xx
-    b_0 = m_y - b_1*m_x
+    b_0 = m_y - b_1 * m_x
 
-    return(b_0, b_1)
+    return (b_0, b_1)
 
 
 @st.cache_data
@@ -106,44 +106,87 @@ def Horner_plot_data(source_file):
             }
         )
         # Graph the new horner plot after update dataframe
-        index5 = 15_000
-        # cut dataframe from index 0 to index of end of straight line
-        dfhorner = horner.iloc[index5:, :]
-        # linear regression to find slope and intercept of a straight line
-        x5 = dfhorner.iloc[:, 1]
-        y5 = dfhorner.iloc[:, 2]
-        c5, m5 = regression(x5,y5)
-        pi = c5 # initial pressure equals to intercept c5
-        graph = graphing_horner_1v(
-            horner,
-            "logtime",
-            "Shut-in pressure(psia)",
-            title="Complete Horner Build Plot",
-            x_lable="Log((tp+delta_t)/delte_t)",
-            y_label="Shut-in pressure, pws (psi)",
-        )
-        st.plotly_chart(graph)
-        st.write("Slope of linear-region Horner plot:", m5)
-        st.write("Intercept of linear-region Horner plot:", c5, "psia")
-        st.write("The initial reservoir pressure equals to the intercept:", pi, "psia")
-        # Calculate the skin below
-        # calculate permeability
-        k = - (162.6 * q * Bo * mu_oil) / (m5 * h)
-        # calculate skin factor
-        # determine b1hr: pressure value at t = 1 hour, in psia
-        b1hr = c5 + m5 * np.log10(tp + 1)
-        s = 1.1513 * (((pwf - b1hr) / m5) - np.log10(k / (poro * mu_oil * ct * (rw**2))) + 3.2275)
-        st.write("Skin factor:", s)
-        # Calculate pressure drop due to well damage
-        delta_ps = ((141.2 * q * Bo * mu_oil) / (k * h)) * s
-        st.write("Pressure drop due to well skin:", delta_ps, "psia")
-        delta_p_shutin = pi - df.Pressure[0]
-        st.write("Pressure drop before shut-in:", delta_p_shutin, "psia")
-        wellskin_contribution = (delta_ps / delta_p_shutin) * 100
-        st.write("Well damage contribute to:", wellskin_contribution, "% of total pressure drop")
-        formation_drop = delta_p_shutin - delta_ps
-        formation_contribution = 100 - wellskin_contribution
-        st.write("Reservoir formation contribute to:", formation_drop, "psia of the total pressure drop,\nor in percent:", formation_contribution, "% of total pressure drop")
+        with st.form(key="Horner_form"):
+            col1, col2, col3 = st.columns(3)
+            # index5 = 15_000
+            index5 = col1.number_input(label="index", step=100, value=15000)
+            q = col2.number_input(label="Oil Rate Q", step=100, value=2000)
+            pwf = col3.number_input(
+                label="pwf", step=10, value=3200
+            )  # in psia, flowing pressure
+            # the well is flowed for 24 hours, then shut-in for another
+            # 24 hours (24-hour buildup)
+            tp = col1.number_input(label="Shutin hours", step=1, value=12)
+            poro = col1.number_input(label="Porosity", step=0.1, value=0.28)
+            rw = col3.number_input(label="rw", step=0.1, value=0.40)
+            h = col2.number_input(label="h", step=0.1, value=0.40)
+            ct = 9e-06  # in psi^-1
+            pi = col3.number_input(
+                label="pi", step=100, value=3500
+            )  # 86  # in ft3700  # initial pressure in psia
+            mu_oil = 1  # in cP
+            Bo = col2.number_input(
+                label="Bo", step=0.1, value=1.20
+            )  # 1.121  # in RB/STB
+            re = np.inf  # reservoir is infinity in size
+            # cut dataframe from index 0 to index of end of straight line
+            dfhorner = horner.iloc[index5:, :]
+            # linear regression to find slope and intercept of a straight line
+            x5 = dfhorner.iloc[:, 1]
+            y5 = dfhorner.iloc[:, 2]
+            c5, m5 = regression(x5, y5)
+            pi = c5  # initial pressure equals to intercept c5
+            graph = graphing_horner_1v(
+                horner,
+                "logtime",
+                "Shut-in pressure(psia)",
+                title="Complete Horner Build Plot",
+                x_lable="Log((tp+delta_t)/delte_t)",
+                y_label="Shut-in pressure, pws (psi)",
+            )
+            # Calculate the skin below
+            # calculate permeability
+            k = -(162.6 * q * Bo * mu_oil) / (m5 * h)
+            # calculate skin factor
+            # determine b1hr: pressure value at t = 1 hour, in psia
+            b1hr = c5 + m5 * np.log10(tp + 1)
+            s = 1.1513 * (
+                ((pwf - b1hr) / m5)
+                - np.log10(k / (poro * mu_oil * ct * (rw**2)))
+                + 3.2275
+            )
+            # Calculate pressure drop due to well damage
+            delta_ps = ((141.2 * q * Bo * mu_oil) / (k * h)) * s
+            delta_p_shutin = pi - df.Pressure[0]
+            wellskin_contribution = (delta_ps / delta_p_shutin) * 100
+            formation_drop = delta_p_shutin - delta_ps
+            formation_contribution = 100 - wellskin_contribution
+
+            submit = st.form_submit_button(label="Submit")
+            if submit:
+                st.write("Slope of linear-region Horner plot:", m5)
+                st.write("Intercept of linear-region Horner plot:", c5, "psia")
+                st.write(
+                    "The initial reservoir pressure equals to the intercept:",
+                    pi,
+                    "psia",
+                )
+                st.write("Skin factor:", s)
+                st.write("Pressure drop due to well skin:", delta_ps, "psia")
+                st.write("Pressure drop before shut-in:", delta_p_shutin, "psia")
+                st.write(
+                    "Well damage contribute to:",
+                    wellskin_contribution,
+                    "% of total pressure drop",
+                )
+                st.write(
+                    "Reservoir formation contribute to:",
+                    formation_drop,
+                    "psia of the total pressure drop,\nor in percent:",
+                    formation_contribution,
+                    "% of total pressure drop",
+                )
+                st.plotly_chart(graph)
 
 
 def graphing_horner_1v(
