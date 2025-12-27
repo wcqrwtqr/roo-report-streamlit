@@ -36,9 +36,18 @@ def load_df_horner(source_file: str) -> Tuple[pd.DataFrame, List[int]]:
     Return data is a tuple of dataframe and list.
     """
     try:
-        df = pd.read_csv(source_file, sep=",")
+        df = pd.read_csv(
+            source_file,
+            sep=",",
+            header=None,
+            skiprows=15,
+            names=["Hours", "Pressure", "Delete"],
+            encoding_errors="ignore",  # pandas ≥ 1.4
+            encoding="utf-8",
+        )
     except Exception as e:
         st.write("Error loading the file - ensure using the correct file\n" + str(e))
+    df = df.drop(columns=["Delete"])
     range_data = df.index.tolist()
     return df, range_data
 
@@ -58,13 +67,13 @@ def Horner_plot_data(source_file):
         max_value=max(range_data),
         value=(min(range_data), max(range_data)),
     )
-    df_lst = df[range_data_selection[0] : range_data_selection[1]]
+    df_lst = df[range_data_selection[0]: range_data_selection[1]]
     with st.expander(label="Table of Data"):
         NN = st.selectbox("Interval", [1, 2, 5, 10, 25, 50, 100])
         if NN is None:  # This code is to address int|None condition
             NN = 1
         st.dataframe(df_lst.loc[:: int(NN)])
-        st.markdown(f"*Available Data: {df_lst.loc[::int(NN)].shape[0]}")
+        st.markdown(f"*Available Data: {df_lst.loc[:: int(NN)].shape[0]}")
         st.download_button(
             label="Download data", data=df_lst.loc[:: int(NN)].to_csv(), mime="csv"
         )
@@ -81,7 +90,11 @@ def Horner_plot_data(source_file):
         st.plotly_chart(graph)
 
     with st.expander(label="Horner Plot"):
-        delta_t = df_lst.Hours - df_lst.Hours[0]
+        st.write(
+            f"bugging - value of Hours[0] = {df_lst.Hours[range_data_selection[0]]}"
+        )
+        # delta_t = df_lst.Hours - df_lst.Hours[0]
+        delta_t = df_lst.Hours - df_lst.Hours[range_data_selection[0]]
         x_horner = np.log10((24 + delta_t) / delta_t)
         horner = pd.DataFrame(
             {
@@ -133,7 +146,11 @@ def Horner_plot_data(source_file):
             )
             # Calculate pressure drop due to well damage
             delta_ps = ((141.2 * q * Bo * mu_oil) / (k * h)) * s
-            delta_p_shutin = pi - df.Pressure[0]
+            delta_p_shutin = pi - df.Pressure[range_data_selection[0]]
+            st.write(
+                f"bug old {df.Pressure[0]} against {df.Pressure[range_data_selection[0]]}"
+            )
+            # delta_p_shutin = pi - df.Pressure[0]
             wellskin_contribution = (delta_ps / delta_p_shutin) * 100
             formation_drop = delta_p_shutin - delta_ps
             formation_contribution = 100 - wellskin_contribution
@@ -162,7 +179,8 @@ def Horner_plot_data(source_file):
                 )
                 st.write("Skin factor:", s)
                 st.write("Pressure drop due to well skin:", delta_ps, "psia")
-                st.write("Pressure drop before shut-in:", delta_p_shutin, "psia")
+                st.write("Pressure drop before shut-in:",
+                         delta_p_shutin, "psia")
                 st.write(
                     "Well damage contribute to:",
                     wellskin_contribution,
