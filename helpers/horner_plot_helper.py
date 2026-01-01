@@ -90,9 +90,9 @@ def Horner_plot_data(source_file):
         st.plotly_chart(graph)
 
     with st.expander(label="Horner Plot"):
-        st.write(
-            f"bugging - value of Hours[0] = {df_lst.Hours[range_data_selection[0]]}"
-        )
+        # st.write(
+        #     f"bugging - value of Hours[0] = {df_lst.Hours[range_data_selection[0]]}"
+        # )
         # delta_t = df_lst.Hours - df_lst.Hours[0]
         delta_t = df_lst.Hours - df_lst.Hours[range_data_selection[0]]
         x_horner = np.log10((24 + delta_t) / delta_t)
@@ -147,9 +147,9 @@ def Horner_plot_data(source_file):
             # Calculate pressure drop due to well damage
             delta_ps = ((141.2 * q * Bo * mu_oil) / (k * h)) * s
             delta_p_shutin = pi - df.Pressure[range_data_selection[0]]
-            st.write(
-                f"bug old {df.Pressure[0]} against {df.Pressure[range_data_selection[0]]}"
-            )
+            # st.write(
+            #     f"bug old {df.Pressure[0]} against {df.Pressure[range_data_selection[0]]}"
+            # )
             # delta_p_shutin = pi - df.Pressure[0]
             wellskin_contribution = (delta_ps / delta_p_shutin) * 100
             formation_drop = delta_p_shutin - delta_ps
